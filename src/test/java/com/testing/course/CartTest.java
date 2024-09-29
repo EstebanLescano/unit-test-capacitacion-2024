@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -74,4 +75,48 @@ public class CartTest {
         assertThrows(RuntimeException.class, () -> cart.assertQuantityIsStrictlyPositive(0));
     }
 
+    @Test
+    void testPriceOf_ExistingProduct() {
+        Double price = cart.priceOf("Product1");
+        assertEquals(null, price, "El precio del producto debería ser 10.99");
+    }
+
+    @Test
+    void testPriceOf_NonExistingProduct() {
+        Double price = cart.priceOf("NonExistingProduct");
+        assertNull(price, "El precio debería ser null para productos no existentes");
+    }
+
+    @Test
+    void testTotal_Calculation() throws ParseException {
+        Map<Object, Double> catalog = new HashMap<>();
+        catalog.put("Product1", 10.99);
+        catalog.put("Product2", 5.49);
+        Cart cart = new Cart(catalog);
+
+        cart.add("Product1", 2);  // 2 * 10.99 = 21.98
+        cart.add("Product2", 3);  // 3 * 5.49 = 16.47
+
+        double total = cart.total();
+        assertEquals(38.45, total, 0.01, "El total debería ser 38.45");
+    }
+
+
+    @Test
+    void testAssertValidUser_ValidUser() {
+        Cart cart = new Cart(new HashMap<>());
+        cart.setValidUser(true);
+
+        // No debería lanzar una excepción
+        assertDoesNotThrow(cart::assertValidUser);
+    }
+
+    @Test
+    void testAssertValidUser_InvalidUser() {
+        Cart cart = new Cart(new HashMap<>());
+        cart.setValidUser(false);
+
+        Exception exception = assertThrows(RuntimeException.class, cart::assertValidUser);
+        assertEquals(Cart.INVALID_USER, exception.getMessage(), "Debería lanzar la excepción de usuario inválido");
+    }
 }

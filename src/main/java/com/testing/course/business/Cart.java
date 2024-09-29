@@ -66,7 +66,7 @@ public class Cart {
             return  (Double) df.parse(formate);
     }
 
-    private Double priceOf(Object aProduct) {
+    public Double priceOf(Object aProduct) {
         return catalog.get(aProduct);
     }
 
